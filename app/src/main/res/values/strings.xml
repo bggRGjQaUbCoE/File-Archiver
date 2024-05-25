@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">File Archiver</string>
+    <string name="directory">Directory</string>
 </resources>

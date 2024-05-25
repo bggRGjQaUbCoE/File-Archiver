@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.color.DynamicColors
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -21,6 +22,7 @@ abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DynamicColors.applyToActivityIfAvailable(this)
         enableEdgeToEdge()
         val type = javaClass.genericSuperclass as ParameterizedType
         val aClass = type.actualTypeArguments[0] as Class<*>
