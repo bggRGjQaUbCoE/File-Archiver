@@ -19,6 +19,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FileArchiver"
         tools:targetApi="tiramisu">
+
+        <service
+            android:name=".MService"
+            android:enabled="true"
+            android:exported="true" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
