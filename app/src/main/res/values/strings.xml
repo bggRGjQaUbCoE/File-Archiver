@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">File Archiver</string>
-    <string name="directory">Directory</string>
+    <string name="folder">Folder Path</string>
+    <string name="run">RUN</string>
 </resources>

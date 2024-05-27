@@ -1,6 +1,7 @@
-package com.example.filearchiver.ui.main
+package com.example.filearchiver
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build.VERSION.SDK_INT
@@ -8,24 +9,81 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.filearchiver.databinding.ActivityMainBinding
-import com.example.filearchiver.ui.base.BaseActivity
+import com.google.android.material.color.DynamicColors
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
 
 
 /**
  * Created by bggRGjQaUbCoE on 2024/5/25
  */
-class MainActivity : BaseActivity<ActivityMainBinding>() {
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DynamicColors.applyToActivityIfAvailable(this)
+        enableEdgeToEdge()
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         checkPermission()
+        initButton()
 
+    }
+
+    private fun initButton() {
+        binding.run.setOnClickListener {
+            try {
+                val list = File(binding.editText.text.toString()).listFiles()
+                if (!list.isNullOrEmpty()) {
+                    list.forEachIndexed { index, file ->
+                        if (!file.isDirectory) {
+                            val fromFolder = binding.editText.text.toString()
+                            val lastModifiedTime = getFileLastModifiedTime(file)
+                            val targetFolder =
+                                "${fromFolder}${if (fromFolder.substring(fromFolder.lastIndex) == "/") "" else "/"}$lastModifiedTime"
+                            val targetFolderFile = File(targetFolder)
+                            if (!targetFolderFile.exists()) {
+                                targetFolderFile.mkdirs()
+                            }
+                            val targetFile = File(targetFolder, file.name)
+                            file.renameTo(targetFile)
+                        }
+
+                        if (index == list.lastIndex) {
+                            Toast.makeText(this, "DONE", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, "Folder is null or empty", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this, e.message ?: "unknown issue", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun getFileLastModifiedTime(file: File): String {
+        val time = file.lastModified()
+        return SimpleDateFormat("yyyy-MM-dd").format(Date(time))
     }
 
     private var storagePermissionRequest: ActivityResultLauncher<Intent> =
